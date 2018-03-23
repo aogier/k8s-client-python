@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kubernetes import client, config, watch
+from os import path
+
+import yaml
+
+from kubernetes import client, config
 
 
 def main():
@@ -21,16 +25,12 @@ def main():
     # default location.
     config.load_kube_config()
 
-    v1 = client.CoreV1Api()
-    count = 10
-    w = watch.Watch()
-    for event in w.stream(v1.list_namespace, timeout_seconds=10):
-        print("Event: %s %s" % (event['type'], event['object'].metadata.name))
-        count -= 1
-        if not count:
-            w.stop()
-
-    print("Ended.")
+    with open(path.join(path.dirname(__file__), "nginx-deployment.yaml")) as f:
+        dep = yaml.load(f)
+        k8s_beta = client.ExtensionsV1beta1Api()
+        resp = k8s_beta.create_namespaced_deployment(
+            body=dep, namespace="default")
+        print("Deployment created. status='%s'" % str(resp.status))
 
 
 if __name__ == '__main__':
