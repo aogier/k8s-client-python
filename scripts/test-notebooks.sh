@@ -5,7 +5,21 @@
 kernel_name=$1
 echo Using kernel: $kernel_name
 
-for file in $(dirname $0)/../examples/notebooks/*.ipynb; do
+examples_root=$(dirname $0)/../examples
+
+for file in $examples_root/*.py; do
+    if [ $(basename $file) == '__init__.py' ]; then
+        continue
+    fi
+
+    filename=$examples_root/notebooks/$(basename ${file%.py}.ipynb)
+
+    if [ ! -f $filename ]; then
+        echo WARNING: example $file does not have a notebook
+    fi
+done
+
+for file in $examples_root/notebooks/*.ipynb; do
     echo Testing notebook: $file
     jupyter nbconvert \
         --to notebook \
