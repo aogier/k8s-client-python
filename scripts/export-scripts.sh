@@ -5,7 +5,7 @@ if ! which jupyter > /dev/null 2>&1; then
   exit
 fi
 
-. test_utils.bash
+. $(dirname $0)/test_utils.bash
 
 # FIXME: it's super lame and I feel dumber every time I read it
 if ! diff -urN \
