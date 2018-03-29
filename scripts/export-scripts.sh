@@ -5,22 +5,17 @@ if ! which jupyter > /dev/null 2>&1; then
   exit
 fi
 
-examples_root=$(dirname $0)/../examples
-
-exporter_preprocessors='["nbconvert.preprocessors.clearoutput.ClearOutputPreprocessor"]'
-
+. test_utils.bash
 
 # FIXME: it's super lame and I feel dumber every time I read it
 if ! diff -urN \
     -x '*.pyc' \
     -x '*.pyd' \
     -x '*.pyo' \
-    -x __pycache__\
+    -x __pycache__ \
     $examples_root/example_utils \
     $examples_root/notebooks/example_utils >/dev/null 2>&1; then     
-    echo '##'
-    echo '# Warning: support packages differs from here to notebooks/'
-    echo '##'
+    log 'Warning: example support packages differs from notebooks/'
 fi
 
 for file in $examples_root/notebooks/*.ipynb; do
@@ -30,14 +25,14 @@ for file in $examples_root/notebooks/*.ipynb; do
         --to notebook \
         --inplace \
         --NotebookExporter.preprocessors=$exporter_preprocessors \
-        $file
+        "$file"
     
     # convert to plain scripts
     jupyter nbconvert \
         --to python \
         --PythonExporter.exclude_input_prompt=True \
         --output-dir=$examples_root \
-        $file
+        "$file"
         
         # wait for https://github.com/pallets/jinja/pull/829
         # --PythonExporter.template_file=$examples_root/notebooks/.templates/python.tpl \
